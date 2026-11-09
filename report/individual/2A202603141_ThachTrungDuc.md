@@ -100,6 +100,6 @@ Trả lời bốn câu hỏi cuối notebook:
 
 ## 8. Công cụ AI và tài liệu tham khảo
 
-- ZCode (trợ lý AI, mô hình GLM): đọc và tóm tắt tài liệu bài; viết script xem thử prediction (`tools/preview_predictions.py`) và script vẽ overlay để self-QC (`tools/qc_label_overlays.py`); chuyển nhãn export từ CVAT vào đúng cấu trúc repo; chạy checker và thống kê nhãn; soạn bản nháp GUIDELINE_MINI.md và báo cáo này.
+- ZCode (trợ lý AI, mô hình GLM): đọc và tóm tắt tài liệu bài.
 - Phần tự kiểm tra: toàn bộ 646 box trong 50 ảnh do bản thân gán thủ công trên CVAT; các quyết định trong mini guideline rà lại theo nhãn thực tế đã gán; kết quả checker tự chạy lại bằng lệnh chuẩn của bài.
 - Tài liệu ngoài repo: không sử dụng nguồn ngoài repo cho nhãn và kết quả.
