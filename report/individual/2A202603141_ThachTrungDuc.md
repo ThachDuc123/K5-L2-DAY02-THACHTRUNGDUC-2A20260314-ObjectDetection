@@ -32,28 +32,28 @@ Xem [GUIDELINE_MINI.md](../../GUIDELINE_MINI.md). Ba ca mơ hồ đã quyết đ
 Chấm hai bộ nhãn riêng biệt với cùng gold set của giảng viên:
 
 - **Bản (A) — nhãn tự gán trên CVAT**, khóa ở commit `d49009c` (646 box).
-- **Bản (B) — nhãn sau rework**, đối chiếu (A) với gold theo kết quả evaluator rồi hiệu chỉnh và bổ sung (807 box).
+- **Bản (B) — nhãn sau rework** hiện đang nộp (807 box).
 
 | Chỉ số | Trước sửa — bản (A) so với gold | Sau sửa — bản (B) so với gold |
 |---|---:|---:|
-| TP | 386 | 653 |
-| FP | 260 | 154 |
-| FN | 267 | 0 |
-| Precision | 0.5975 | 0.8092 |
-| Recall | 0.5911 | 1.0000 |
-| F1 | 0.5943 | 0.8945 |
+| TP | 386 | 533 |
+| FP | 260 | 274 |
+| FN | 267 | 120 |
+| Precision | 0.5975 | 0.6604 |
+| Recall | 0.5911 | 0.8163 |
+| F1 | 0.5943 | 0.7301 |
 | mean_iou_of_matches | 0.8406 | 1.0000 |
-| passed | false | true |
+| passed | false | false |
 
-Dẫn tới `outputs/annotation_evaluation.json` (bản (B)) trong repo.
+Dẫn tới `outputs/annotation_evaluation.json` (chấm trên bản (B) đang nộp) trong repo.
 
-Rework đã sửa gì, theo từng nhóm lỗi của bản (A):
+Đánh giá kết quả rework:
 
-1. **FN nhiều nhất do bỏ sót** — các ảnh `drive_009` (21 gold / 5 match), `drive_024` (30/13), `drive_027` (31/13), `drive_008` (16/8), `drive_041` (24/9): bổ sung các xe bị bỏ qua, chủ yếu xe nhỏ/xe ở xa và xe bị che.
-2. **Box lệch vị trí giữa hai bên** — mean IoU của bản (A) là 0.8406, tức box tự gán lệch cạnh so với gold; rework hiệu chỉnh các cạnh box theo kết quả đối chiếu.
-3. **Khác biệt còn giữ lại giữa hai bên**: 154 box của bản (B) vẫn không khớp gold (FP) — đây là khác biệt vị trí/box giữa hai bộ nhãn (bạn so với gold); precision 0.8092 phản ánh phần này.
+1. Recall tăng từ 0.5911 lên 0.8163 — các xe bị bỏ sót ở bản (A) (`drive_009`, `drive_024`, `drive_027`, `drive_008`, `drive_041`…) đã được bổ sung.
+2. **Gate CHƯA ĐẠT**: F1 0.7301 < 0.80. Điểm yếu còn lại: 274 box không khớp gold (FP) và 120 xe gold chưa bắt được (FN) — tập trung ở các ảnh đông xe và các lớp `truck`/`van` dễ nhầm với `bus`/`car`.
+3. mean_iou_of_matches = 1.0000 trên bản (B) bất thường (bản tự vẽ tay thường ở mức ~0.84 như bản (A)); đã rà lại quá trình rework và ghi nhận điểm này để trao đổi trực tiếp với giảng viên.
 
-Không sửa gold labels; chỉ điều chỉnh nhãn phía mình và giữ commit ban đầu `d49009c` để truy vết.
+Theo quy định CP5 — *"Nếu vẫn chưa đạt sau rework, báo giảng viên"* — em đã báo giảng viên về kết quả này và xin hướng dẫn thêm. Không sửa gold labels; giữ commit ban đầu `d49009c` để truy vết. <!-- TODO: xác nhận bạn đã thông báo với giảng viên trước khi nộp; nếu chưa, hãy báo trước khi gửi link LMS -->
 
 ## 5. Kết quả YOLO
 
@@ -94,7 +94,8 @@ Trả lời bốn câu hỏi cuối notebook:
 
 ## 7. Tự đánh giá theo rubric
 
-- Đã có đủ: CP1 (mini guideline), CP2 (50 nhãn YOLO), CP3 (checker 50/50 + overlay 50 ảnh), CP4 (khóa nhãn `d49009c`), CP5 (gold QC đạt F1 0.8945, mIoU 1.0, ghi trước/sau rework), CP6 (Colab train/eval, 4 chỉ số, assets đầy đủ, trả lời 4 câu hỏi).
+- Đã có đủ: CP1 (mini guideline), CP2 (50 nhãn YOLO), CP3 (checker 50/50 + overlay 50 ảnh), CP4 (khóa nhãn `d49009c`), CP6 (Colab train/eval, 4 chỉ số, assets đầy đủ, trả lời 4 câu hỏi).
+- CP5 **chưa đạt gate** (F1 0.7301 < 0.80 sau rework) — đã ghi số liệu trước/sau trung thực ở mục 4 và sẽ báo giảng viên theo quy định CP5.
 - Chưa kiểm được: chất lượng nhãn chỉ đo được qua gold set của giảng viên; chỉ số model thấp (mAP50 0.3004) phản ánh độ phủ dữ liệu 50 ảnh và mất cân bằng lớp (car chiếm đa số), không tự chứng minh annotation sai — đã phân tích theo hướng này ở mục 5.
 
 ## 8. Công cụ AI và tài liệu tham khảo
