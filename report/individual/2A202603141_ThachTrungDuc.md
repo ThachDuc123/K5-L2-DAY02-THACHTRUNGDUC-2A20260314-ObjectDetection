@@ -9,7 +9,7 @@
 - Email: thachduc1201@gmail.com 
 - Lớp: L2A
 - Link repo bài làm: https://github.com/ThachDuc123/ThachDuc123-K5-L2-DAY02-THACHTRUNGDUC-2A20260314-ObjectDetection/tree/main
-- Link Colab đã chạy: 
+- Link Colab đã chạy: [notebook trên Colab](https://colab.research.google.com/github/ThachDuc123/K5-L2-DAY02-THACHTRUNGDUC-2A20260314-ObjectDetection/blob/main/notebooks/day2_annotation_to_yolo.ipynb)
 
 ## 2. Schema và mini guideline
 
@@ -57,27 +57,32 @@ Không sửa gold labels; chỉ điều chỉnh nhãn phía mình và giữ comm
 
 ## 5. Kết quả YOLO
 
-<!-- TODO: điền sau khi chạy notebook Colab (CP6) -->
-
-- Runtime, GPU/CPU, phiên bản Ultralytics và Torch:
-- Các tham số thay đổi so với notebook nếu có và lý do:
-- Đường dẫn best checkpoint trong phiên chạy:
+- Runtime, GPU/CPU, phiên bản Ultralytics và Torch: Google Colab, runtime GPU; notebook tự cài Ultralytics phiên bản mới nhất (kèm Torch tương ứng). Chạy lại `val` cục bộ cho ra số liệu trùng khớp `model_eval_metrics.json`, xác nhận kết quả tái lập được.
+- Các tham số thay đổi so với notebook nếu có và lý do: không đổi tham số; giữ nguyên data.yaml, số epoch và split 50 train / 10 eval của notebook.
+- Đường dẫn best checkpoint trong phiên chạy: `outputs/yolo26_runs/vehicle_annotation/weights/best.pt` (trong phiên Colab; bản nộp bỏ qua `.pt` theo `.gitignore`).
 
 | Chỉ số trên 10 ảnh eval | Giá trị |
 |---|---:|
-| Precision | |
-| Recall | |
-| mAP50 | |
-| mAP50–95 | |
+| Precision | 0.2747 |
+| Recall | 0.2996 |
+| mAP50 | 0.3004 |
+| mAP50–95 | 0.2216 |
 
-Đặt cả 2 folder `assets/eval_predictions/` và `assets/yolo26_runs/` (giải nén từ `day2_colab_outputs.zip`) cạnh báo cáo và dẫn link tương đối. Không chỉ ghi số; chỉ ra ít nhất một ảnh và vật thể cụ thể.
+Assets (giải nén từ `day2_colab_outputs.zip`): `assets/eval_predictions/visuals/` (10 ảnh eval kèm box dự đoán, ví dụ [`assets/eval_predictions/visuals/drive_051.jpg`](assets/eval_predictions/visuals/drive_051.jpg)) và `assets/yolo26_runs/` (log train có `results.csv`, confusion matrix, PR curve trong `vehicle_eval/`). Ví dụ cụ thể: trong `drive_051.jpg`, model nhận được phần lớn xe `car` ở giữa khung nhưng bỏ sót xe nhỏ ở xa và nhầm các xe thân liền khối; số liệu theo lớp (val lại với `best.pt`, 113 instance trên 10 ảnh):
+
+| Lớp | P | R | AP50 | AP50–95 |
+|---|---:|---:|---:|---:|
+| car | 0.594 | 0.915 | 0.860 | 0.604 |
+| truck | 0.403 | 0.200 | 0.262 | 0.241 |
+| bus | 0.000 | 0.000 | 0.004 | 0.002 |
+| van | 0.103 | 0.083 | 0.076 | 0.039 |
 
 Trả lời bốn câu hỏi cuối notebook:
 
-1. Lớp nào recall thấp nhất? Ảnh nào minh họa?
-2. Nếu mAP50 cao nhưng mAP50–95 thấp, cần kiểm điều gì trên box?
-3. Lỗi class nào có thể liên quan guideline? Dữ kiện nào hỗ trợ nhận xét?
-4. Vì sao không dùng 10 ảnh eval để train? Vai trò validation của chúng trong notebook là gì?
+1. **Lớp nào recall thấp nhất?** `bus` (R = 0.000, chỉ 2 instance trong eval: `drive_051`, `drive_058` — model không bắt được cả hai). Nguyên nhân hợp lý: bus chỉ có số lượng rất ít trong 50 ảnh train nên model gần như không học được đặc trưng lớp này; `van` (R = 0.083) cũng tương tự với 12 instance.
+2. **Nếu mAP50 cao nhưng mAP50–95 thấp?** Kiểm tra độ khít cạnh box: mAP50–95 lấy trung bình AP ở ngưỡng IoU từ 0.50 đến 0.95, chỉ số thấp nghĩa là các box dự đoán đúng đối tượng nhưng chưa bám sát rìa vật thể. Liên hệ dữ liệu bài này: mean IoU bản nhãn (A) trước rework là 0.8406 — box lệch cạnh ở nhãn train sẽ dạy model vẽ box lỏng theo.
+3. **Lỗi class nào liên quan guideline?** Nhầm lẫn giữa `van` – `car` – `truck` (P của van = 0.103, truck = 0.403): guideline phân biệt van/car/truck theo kích thước tương đối, các xe thân liền khối ở góc nhìn CCTV khó phân biệt khi nhỏ hoặc bị che; dữ kiện hỗ trợ: trong tập train, car chiếm đa số box trong khi van/truck/bus rất ít, và một số ảnh có xe bị cắt khung chỉ nhìn thấy một phần thân (case `drive_012`, `drive_033` trong guideline).
+4. **Vì sao không dùng 10 ảnh eval để train?** Trong notebook, 10 ảnh eval vừa là validation để chọn `best.pt` vừa là bộ đánh giá; nếu đưa vào train thì model đã "nhìn thấy" đáp án, chỉ số trên eval sẽ tăng ảo và không còn phản ánh khả năng tổng quát hóa (rò rỉ dữ liệu), tức mất vai trò kiểm tra độc lập của dữ liệu ngoài tập train.
 
 ## 6. Khó khăn và cách xử lý
 
@@ -89,9 +94,8 @@ Trả lời bốn câu hỏi cuối notebook:
 
 ## 7. Tự đánh giá theo rubric
 
-- Đã có: CP1 (mini guideline), CP2 (50 nhãn YOLO), CP3 (checker 50/50 + overlay 50 ảnh), CP4 (khóa nhãn `d49009c`), CP5 (gold QC đạt: F1 0.8945 ≥ 0.80, mIoU 1.0 ≥ 0.70, có rework ghi trước/sau).
-- Còn thiếu: CP6 (Colab train/eval + 2 folder assets + 4 chỉ số + trả lời 4 câu hỏi), link Colab vào mục 1.
-<!-- TODO: cập nhật sau khi chạy Colab xong -->
+- Đã có đủ: CP1 (mini guideline), CP2 (50 nhãn YOLO), CP3 (checker 50/50 + overlay 50 ảnh), CP4 (khóa nhãn `d49009c`), CP5 (gold QC đạt F1 0.8945, mIoU 1.0, ghi trước/sau rework), CP6 (Colab train/eval, 4 chỉ số, assets đầy đủ, trả lời 4 câu hỏi).
+- Chưa kiểm được: chất lượng nhãn chỉ đo được qua gold set của giảng viên; chỉ số model thấp (mAP50 0.3004) phản ánh độ phủ dữ liệu 50 ảnh và mất cân bằng lớp (car chiếm đa số), không tự chứng minh annotation sai — đã phân tích theo hướng này ở mục 5.
 
 ## 8. Công cụ AI và tài liệu tham khảo
 
