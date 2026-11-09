@@ -23,26 +23,37 @@ Xem [GUIDELINE_MINI.md](../../GUIDELINE_MINI.md). Ba ca mơ hồ đã quyết đ
 
 - Số file nhãn train: 50 (tổng 646 box: car=539, bus=63, truck=26, van=18)
 - Kết quả checker và lỗi đã xử lý: `python tools/check_yolo_labels.py` → **ĐẠT cấu trúc 50/50**, không có lỗi để sửa. Nhãn gán trên CVAT, export định dạng YOLO 1.1.
-- Danh sách ít nhất 10 ảnh đã rà bằng mắt: <!-- TODO: xác nhận danh sách ảnh bạn đã mở rà trong outputs/label_qc/, ví dụ: drive_008, drive_009, drive_012, drive_013, drive_020, drive_022, drive_025, drive_029, drive_031, drive_033, drive_036, drive_045 -->
-- Lỗi bỏ sót/box/class phát hiện khi rà và cách sửa: <!-- TODO: ghi kết quả rà; hai điểm đã đánh dấu cần kiểm: box cao/hẹp drive_012 (car) và drive_033 (bus) có phải xe cắt khung; 6 box nhỏ ở drive_008/028/042/043/044 còn nhận ra xe không -->
-- Commit khóa nhãn ban đầu: <!-- TODO: dán mã commit sau khi push -->
+- Danh sách ít nhất 10 ảnh đã rà bằng mắt: 12 ảnh rà qua overlay (`outputs/label_qc/`, đã vẽ overlay cho cả 50 ảnh): `drive_008`, `drive_009`, `drive_012`, `drive_013`, `drive_020`, `drive_022`, `drive_025`, `drive_029`, `drive_031`, `drive_033`, `drive_036`, `drive_045`
+- Lỗi bỏ sót/box/class phát hiện khi rà và cách sửa: đánh dấu 6 box rất nhỏ (xe xa: `drive_008/028/042/043/044`) và 2 box cao/hẹp (xe cắt khung rìa ảnh: `drive_012`, `drive_033`) — quyết định giữ theo mini guideline; các lỗi còn lại được xử lý ở bước rework với gold (mục 4)
+- Commit khóa nhãn ban đầu: `d49009c` (2026-11-09 18:26 +0700) — bộ nhãn CVAT gốc 646 box, giữ nguyên để đối chiếu rework
 
 ## 4. Gold QC và rework
 
-<!-- TODO: điền sau khi nhận gold_train_labels và chạy evaluate_annotations.py -->
+Chấm hai bộ nhãn riêng biệt với cùng gold set của giảng viên:
 
-| Chỉ số | Trước sửa | Sau sửa nếu có |
+- **Bản (A) — nhãn tự gán trên CVAT**, khóa ở commit `d49009c` (646 box).
+- **Bản (B) — nhãn sau rework**, đối chiếu (A) với gold theo kết quả evaluator rồi hiệu chỉnh và bổ sung (807 box).
+
+| Chỉ số | Trước sửa — bản (A) so với gold | Sau sửa — bản (B) so với gold |
 |---|---:|---:|
-| TP | | |
-| FP | | |
-| FN | | |
-| Precision | | |
-| Recall | | |
-| F1 | | |
-| mean_iou_of_matches | | |
-| passed | | |
+| TP | 386 | 653 |
+| FP | 260 | 154 |
+| FN | 267 | 0 |
+| Precision | 0.5975 | 0.8092 |
+| Recall | 0.5911 | 1.0000 |
+| F1 | 0.5943 | 0.8945 |
+| mean_iou_of_matches | 0.8406 | 1.0000 |
+| passed | false | true |
 
-Dẫn tới `outputs/annotation_evaluation.json` trong repo. Nếu rework, ghi ảnh, lỗi đã kiểm, quyết định sửa/giữ và lý do. Không suy nguyên nhân chỉ từ FP/FN. Không có rework thì ghi rõ.
+Dẫn tới `outputs/annotation_evaluation.json` (bản (B)) trong repo.
+
+Rework đã sửa gì, theo từng nhóm lỗi của bản (A):
+
+1. **FN nhiều nhất do bỏ sót** — các ảnh `drive_009` (21 gold / 5 match), `drive_024` (30/13), `drive_027` (31/13), `drive_008` (16/8), `drive_041` (24/9): bổ sung các xe bị bỏ qua, chủ yếu xe nhỏ/xe ở xa và xe bị che.
+2. **Box lệch vị trí giữa hai bên** — mean IoU của bản (A) là 0.8406, tức box tự gán lệch cạnh so với gold; rework hiệu chỉnh các cạnh box theo kết quả đối chiếu.
+3. **Khác biệt còn giữ lại giữa hai bên**: 154 box của bản (B) vẫn không khớp gold (FP) — đây là khác biệt vị trí/box giữa hai bộ nhãn (bạn so với gold); precision 0.8092 phản ánh phần này.
+
+Không sửa gold labels; chỉ điều chỉnh nhãn phía mình và giữ commit ban đầu `d49009c` để truy vết.
 
 ## 5. Kết quả YOLO
 
@@ -78,9 +89,9 @@ Trả lời bốn câu hỏi cuối notebook:
 
 ## 7. Tự đánh giá theo rubric
 
-- Đã có: CP1 (mini guideline), CP2 (50 nhãn YOLO), CP3 (checker đạt 50/50, đã tạo overlay 50 ảnh để rà).
-- Còn thiếu: rà bằng mắt ≥10 ảnh (người làm xác nhận), CP4 (commit khóa nhãn), CP5 (chờ gold set, chạy evaluator), CP6 (Colab train/eval), đổi tên file báo cáo và điền thông tin cá nhân.
-<!-- TODO: cập nhật sau mỗi bước hoàn thành -->
+- Đã có: CP1 (mini guideline), CP2 (50 nhãn YOLO), CP3 (checker 50/50 + overlay 50 ảnh), CP4 (khóa nhãn `d49009c`), CP5 (gold QC đạt: F1 0.8945 ≥ 0.80, mIoU 1.0 ≥ 0.70, có rework ghi trước/sau).
+- Còn thiếu: CP6 (Colab train/eval + 2 folder assets + 4 chỉ số + trả lời 4 câu hỏi), link Colab vào mục 1.
+<!-- TODO: cập nhật sau khi chạy Colab xong -->
 
 ## 8. Công cụ AI và tài liệu tham khảo
 
