@@ -4,12 +4,12 @@
 
 ## 1. Thông tin học viên
 
-- Họ tên: <!-- TODO: điền họ tên -->
-- MSSV: <!-- TODO: điền MSSV -->
-- Email: <!-- TODO: điền email -->
-- Lớp: <!-- TODO: điền lớp (L2 / L2A / L2B) -->
-- Link repo bài làm: <!-- TODO: link repo fork đúng chuẩn tên K5-L2-DAY02-HoVaTen-MSSV-ObjectDetection -->
-- Link Colab đã chạy: <!-- TODO: dán link Colab sau khi chạy CP6 -->
+- Họ tên: Thạch Trung Đức
+- MSSV: 2A202603141
+- Email: thachduc1201@gmail.com 
+- Lớp: L2A
+- Link repo bài làm: https://github.com/ThachDuc123/ThachDuc123-K5-L2-DAY02-THACHTRUNGDUC-2A20260314-ObjectDetection/tree/main
+- Link Colab đã chạy: 
 
 ## 2. Schema và mini guideline
 
